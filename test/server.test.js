@@ -25,8 +25,9 @@ describe('server.js', () => {
         request
         .del('/notes/stuff')
         .end((err, res) => {
-            sander.readdir('../notes/')
+            sander.readdir('./notes/')
             .then(files => {
+                console.log('I got inside the test');
                 assert(files.indexOf('stuff.txt' === -1));
                 done();
             })
