@@ -5,20 +5,28 @@ const server = require('../lib/server');
 const assert = chai.assert;
 const sander = require('sander');
 
+
 describe('server.js', () => {
     var request = chai.request(server);
 
-    // it('makes a post request', done => {
-    //     request
-    //     .post('/notes')
-    //     .set('Content-Type', 'application/json')
-    //     .send(`{ noteBody: 'hello world' }`)
-    //     .end((err, res) => {
+    before(done => {
+        sander.writeFile('notes', 'stuff.txt', 'I\'m a little teapot')
+        .then(() => {
+            done();
+        });
+    });
+
+    it('makes a post request', done => {
+        request
+        .post('/notes')
+        .set('Content-Type', 'application/json')
+        .send(`{ noteBody: 'hello world' }`)
+        .end((err, res) => {
             
-    //         assert.equal(0, 1);
-    //         done();
-    //     });
-    // });
+            assert.equal(0, 1);
+            done();
+        });
+    });
 
 
     it('deletes a file', done => {
