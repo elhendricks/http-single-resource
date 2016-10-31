@@ -10,29 +10,69 @@ describe('server.js', () => {
     var request = chai.request(server);
 
     before(done => {
-        sander.writeFile('notes', 'stuff.txt', 'I\'m a little teapot')
+        sander.writeFile('./notes', 'stuff.txt', 'I\'m a little teapot')
         .then(() => {
+            sander.writeFile('./notes', 'news.txt', '{"freshness":"Old News"}');
+        })
+        .then(() => {
+            sander.writeFile('./notes', 'cool-ideas.txt', '{"level":"awesome"}');
+        })
+        .then(() => {
+            sander.unlink('./notes/my-notes.txt');
+        })        
+        .then(() => {
+            done();
+        });
+    });
+
+    it('makes a get request', done => {
+        request
+        .get('/notes/cool-ideas')
+        .end((err, res) => {
+            assert.equal(res.text ,'{"level":"awesome"}');
             done();
         });
     });
 
     it('makes a post request', done => {
         request
-        .post('/notes')
+        .post('/notes/my-notes')
         .set('Content-Type', 'application/json')
-        .send(`{ noteBody: 'hello world' }`)
+        .send('{ noteBody: \'hello world\' }')
         .end((err, res) => {
-            
-            assert.equal(0, 1);
-            done();
+            sander.readFile('./notes/my-notes.txt')
+            .then((data) => { 
+                assert.equal(data, '{ noteBody: \'hello world\' }');
+            })
+            .then( () => {
+                done();
+            });
         });
     });
 
+    it('updates file after post request', done => {
+        request
+        .post('/notes/news')
+        .set('Content-Type', 'application/json')
+        .send('{ "freshness":"New News" }')
+        .end(() => {
+            sander.readFile('./notes/my-notes.txt')
+            .then((data) => { 
+                assert.equal(data, '{ noteBody: \'hello world\' }');
+            })
+            .then( () => {
+                done();
+            })
+            .catch(err => {
+                done(err);
+            });
+        });
+    });
 
     it('deletes a file', done => {
         request
         .del('/notes/stuff')
-        .end((err, res) => {
+        .end(() => {
             sander.readdir('./notes/')
             .then(files => {
                 console.log('I got inside the test');
