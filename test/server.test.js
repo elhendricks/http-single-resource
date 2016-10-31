@@ -34,6 +34,15 @@ describe('server.js', () => {
         });
     });
 
+    it('gives a 404 if file not there on a get request', done => {
+        request
+        .get('/notes/bad-ideas')
+        .end((err, res) => {
+            assert.equal(res.statusCode , 404);
+            done();
+        });
+    });
+
     it('makes a post request', done => {
         request
         .post('/notes/my-notes')
